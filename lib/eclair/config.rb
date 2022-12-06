@@ -41,6 +41,9 @@ module Eclair
       @provider             = :ec2
       @get_pods_option      = ""
       @use_vpc_id_env       = false
+      @use_ssm = lambda do |instance|
+        false
+      end
 
       instance_variables.each do |var|
         Config.class_eval do

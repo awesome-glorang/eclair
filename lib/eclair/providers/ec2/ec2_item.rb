@@ -29,7 +29,11 @@ module Eclair
     end
 
     def command
-      hosts = [@instance.public_ip_address, @instance.private_ip_address].compact
+      hosts = if config.use_ssm.call(@instance)
+                [@instance.instance_id]
+              else
+                [@instance.public_ip_address, @instance.private_ip_address].compact
+              end
       ports = config.ssh_ports
       ssh_options = config.ssh_options
       ssh_command = config.ssh_command
@@ -49,7 +53,6 @@ module Eclair
           }.reduce(format) { |cmd,pair| cmd.sub(pair[0],pair[1].to_s) }
         end
       end.join(" || ")
-      # puts joined_cmd
       "echo Attaching to #{Shellwords.escape(name)} \\[#{@instance.instance_id}\\] && #{joined_cmd}"
     end
 
